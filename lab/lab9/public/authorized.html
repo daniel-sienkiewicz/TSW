@@ -1,0 +1,52 @@
+﻿<!doctype html>
+<html lang="pl">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Test pasport.socketio</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular.js"></script>
+    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+    <script src="js/main.js"></script>
+    <link rel="stylesheet" href="css/styl.css">
+</head>
+
+<body data-ng-app="czatApka">
+    <script>
+    var socket = io.connect('//' + window.location.host);
+    socket.on('news', function(data) {
+        console.log(JSON.stringify(data));
+        socket.emit('reply', {
+            reply: 'odzew klienta'
+        });
+    });
+    </script>
+
+    <div data-ng-controller="chatCtrlr">
+        <div>
+            {{wyswietlNik()}}
+            <div><a href="/logout">Wyloguj</a></div>
+        </div>
+        
+        <div id='pokoje'>
+        </div>
+
+        <div id="chatLog">
+            <div data-ng-repeat="msg in msgs track by $index">{{msg}}</div>
+        </div>
+        
+        <div>
+            Stworz pokoj:
+            <form action="" data-ng-submit="nowyPokoj()">
+                <input type="text" data-ng-model="pokoj.text" maxlength="20">
+            </form>
+            <div id='pisanie'>
+                Napisz cos w pokoju:
+                <form action="" data-ng-submit="sendMsg()">
+                    <input type="text" data-ng-model="msg.text" maxlength="20">
+                </form>
+            </div>
+        </div>
+    </div>    
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<script src="/socket.io/socket.io.js"></script>
+  <script src="angular/angular.min.js"></script>
+  <link href="bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="js/main.js"></script>
+	<script src="jquery.min.js"></script>
+  <script src="https://netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+  <script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+	<link rel="stylesheet" href="css/styl.css">
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
+	<title>Panstwa Miasta</title>
+
+</head>
+<body data-ng-app="PanstwaMiasta">
+
+<div id="dialog">
+</div>
+
+<div data-ng-controller="graCtrlr">
+	<div class="navbar navbar-default">
+        <div class="container">
+        	<div class="navbar-header">
+            	<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+              		<span class="sr-only">Toggle navigation</span>
+              		<span class="icon-bar"></span>
+              		<span class="icon-bar"></span>
+              		<span class="icon-bar"></span>
+            	</button>
+            	<a class="navbar-brand" href="/">"Państwa - Miasta"</a>
+          	</div>
+          	
+          	<div class="navbar-collapse collapse">
+            	<ul class="nav navbar-nav">
+              		<li class="active"><a href="/">Strona Głowna</a></li>
+              		<li data-ng-click='dial(1)'><a href='#'>Zasady Gry</a></li>
+              		<li data-ng-click='dial(2)'><a href='#'>Autor</a></li>
+            	</ul>
+            
+            	<div class="nav navbar-nav navbar-right">
+              		<div data-ng-controller="graCtrlr">
+						<div data-ng-hide="connected" class="bulb">
+      						<img src="img/bullet_red.png" alt="red"> trwa łączenie…
+    					</div>
+    					<div data-ng-show="connected" class="bulb">
+      						<img src="img/bullet_green.png" alt="green"> połączono
+    					</div>
+    		  		</div>
+          		</div>
+          	</div>
+        </div>
+	</div>
+</div>
+<div class="bs-example">
+    <div id="myCarousel" class="carousel slide" data-interval="3000" data-ride="carousel">
+      <!-- Carousel indicators -->
+        <ol class="carousel-indicators">
+            <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+            <li data-target="#myCarousel" data-slide-to="1"></li>
+            <li data-target="#myCarousel" data-slide-to="2"></li>
+        </ol>   
+       <!-- Carousel items -->
+        <div class="carousel-inner">
+            <div class="active item">
+                <h2>Panstwa - Miasta</h2>
+                <div class="carousel-caption">
+                  <h3>Wspaniała gra</h3>
+                  <p>Graj ze znajomymi i ucz się</p>
+                </div>
+            </div>
+            <div class="item">
+                <h2>To nigdy nie było tak proste</h2>
+                <div class="carousel-caption">
+                  <h3>Ta gra</h3>
+                  <p>jeszcze niegdy nie była tak prosta.</p>
+                </div>
+            </div>
+            <div class="item">
+                <h2>Wszystko co trzeba</h2>
+                <div class="carousel-caption">
+                  <h3>Teraz masz</h3>
+                  <p>Wszytsko co potrzeba do spędzania wspólnych chwil z przyjaciółmi</p>
+                </div>
+            </div>
+        </div>
+        <!-- Carousel nav -->
+        <a class="carousel-control left" href="#myCarousel" data-slide="prev">
+            <span class="glyphicon glyphicon-chevron-left"></span>
+        </a>
+        <a class="carousel-control right" href="#myCarousel" data-slide="next">
+            <span class="glyphicon glyphicon-chevron-right"></span>
+        </a>
+    </div>
+</div>
+
+	<div data-ng-controller="graCtrlr">
+		<div id='status'>
+	    <div data-ng-show="nikus">
+				<button type="button" data-ng-click="aktualneWyniki()" class="btn btn-success">Aktualnie mamy: {{wyswietlIleGraczy()}} graczy online</button>
+				<button type="button" data-ng-click="dataHideShow()" class="btn btn-success">{{wyswietlNik()}}</button>
+        <button type="button" data-ng-click="aktualneWyniki()" class="btn btn-success">Aktualne wyniki</button>
+			</div>
+    </div>
+    <br />
+    <div id="informacje" class="alert alert-success">
+    </div>
+
+		<div data-ng-hide="nikus">
+			<br />
+    		<form>
+    			<div class="row">
+  					<div class="col-xs-2">
+    					<input type="text" data-ng-model="nik.text" maxlength="20" class="form-control input-sm" placeholder="Podaj nik">
+  					</div>
+				</div>	
+	    		<br />
+	    		<button data-ng-click="sendNik()" class="btn btn-success">OK</button>
+	    	</form>
+	    	<br />
+	    </div>
+    		
+    	<br />
+    		
+    	<div data-ng-show="gotowy" class="butonik">
+    		<div id='gotowosc' class="alert alert-success">
+        		<strong>Jeżeli jesteś gotowy naciśnij guzik i poczekaj na resztę graczy</strong>
+      	</div>
+    		<button id='admin' data-ng-click="startGry()" class="btn btn-success">Gotowy</button>
+    	</div>
+    	
+   		<div id="dane" data-ng-show="gra" class="gra">
+   			<div id="data">
+          <div class="alert alert-success">
+        		  <strong>Zaczynamy!!</strong>
+              <div data-ng-show='gra'>
+                Runda: {{getRunda()}}
+              </div>
+        		  <div data-ng-show='gra'>
+    				    LITRERKA: {{wyswietlLiterke()}}
+    		      </div>
+        		  <div data-ng-show='gra'>
+                CZAS: {{czasomierzF()}}
+    		  	  </div>
+      	 </div>
+        </div>
+			 <form id="wysylanie" data-ng-submit="wyslijDane()">
+				<table>
+					<tr>
+						<td><input id="panstwo" type="text" data-ng-model="dataContainer.panstwo" class="form-control input-sm" placeholder="Panstwo"></td>
+						<td><input id="misato" type="text" data-ng-model="dataContainer.miasto" class="form-control input-sm" placeholder="Miasto"></td>
+						<td><input id="rzecz" type="text" data-ng-model="dataContainer.rzecz" class="form-control input-sm" placeholder="Rzecz"></td>
+						<td><input id="imie" type="text" data-ng-model="dataContainer.imie" class="form-control input-sm" placeholder="Imie"></td>
+						<td><input id="samochod" type="text" data-ng-model="dataContainer.samochod" class="form-control input-sm" placeholder="Samochód"></td>
+					</tr>
+				</table>
+				<br />
+				<input id="wyslij" type="submit" value="Wyslij" class="btn btn-success">
+			</form>
+		</div>
+		<br />
+		<div id='wyniki' data-ng-show="wyniki" class="alert alert-warning">
+    		{{wyswietlWynikiTury()}}
+    </div>
+    	<br />
+
+  		<div data-ng-show="infoIlosc" class="alert alert-warning">
+       		<strong>Czekamy na resztę graczy - minimalna ilość to trzech</strong>
+   		</div>
+
+      <div id="odpowiedziGraczy" data-ng-show="odpowiedzi" class="alert alert-success">
+      </div>
+
+  		<div id='info' data-ng-show="infoInfo" class="alert alert-danger">
+       		<strong> {{wyswietlInfo()}} </strong>
+   		</div>
+
+      <!--<div data-ng-show="nowaGraG" data-ng-click="nowaGra()" class="butonik">
+          <button class="btn btn-success">Kolejna runda</button>
+      </div>   -->
+
+    <div data-ng-show="nikus">
+      Porozmawiaj ze znajomymi: 
+      <form data-ng-submit="sendMsg()">
+        <input type="text" data-ng-model="msg.text" maxlength="20">
+      </form>
+
+    <div id="chatLog" data-ng-controller="graCtrlr">
+      <div data-ng-repeat="msg in msgs track by $index">{{msg}}</div>
+          
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,25 @@
+{
+    "name": "demo",
+    "version": "0.1.0",
+    "authors": [
+        "Wiesław Pawłowski <w.pawlowski@inf.ug.edu.pl>"
+    ],
+    "description": "Delegowanie zdarzeń DOM",
+    "license": "MIT",
+    "private": true,
+    "ignore": [
+        "**/.*",
+        "node_modules",
+        "bower_components",
+        "test",
+        "tests"
+    ],
+    "dependencies": {
+        "jquery": "~2.1.0"
+    },
+    "exportsOverride": {
+        "jquery": {
+            "js": "dist/jquery.min.js"
+        }
+    }
+}

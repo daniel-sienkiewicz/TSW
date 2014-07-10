@@ -1,0 +1,19 @@
+sigma.ug.edu.pl/~wpawlowski/
+
+Wyklad:
+user: tsw
+pass: UG2@14
+
+Lab:
+user: tsw1
+pass: UG2@14
+
+emmet sublime
+
+SublimeText config:
+1. ctrl + ~
+2. paste code from https://sublime.wbond.net/installation
+3. reset
+4. ctrl+p
+5. install
+6. emmet

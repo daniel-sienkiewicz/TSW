@@ -1,0 +1,199 @@
+# [Grunt.js](http://gruntjs.com/)
+
+## Instalacja:
+
+- `sudo npm install -g grunt-cli`
+
+Załóżmy też, że znajdujemy się wewnątrz katalogu z *zainicjalizowanym* prjektem – wykonaliśmy więc już `npm init`.
+Oznacza to między innymi, że w bieżącym katalogu znajduje się plik `package.json` opisujący konfigurację projektu.
+
+
+Załóżmy, że chcemy użyć Grunt-a w naszym projekcie, musimy w katalogu projektu wykonać polecenie
+
+- `npm install --save-dev grunt`
+
+W efekcie, w pliku `package.json` powstanie wpis podobny do:
+
+    "devDependencies": {
+	    "grunt": "^0.4.4"
+    }
+
+Oczywiście wpisany do pliku `package.json` numer wersji Grunt-a może być inny (wyższy) niż `^0.4.4`.
+
+## Konfiguracja
+
+Plik konfiguracyjny dla Grunt-a nazywa się `Gruntfile.js`. Oto zawartość „pustego” pliku konfiguracyjnego:
+
+    module.exports = function (grunt) {
+    	"use strict";
+    	// miejsce na polecenia konfiguracyjne
+    }
+
+## Współpraca z narzędziem [Bower](http://bower.io/)
+
+Istnieje sporo wtyczek do dla Grunt-a służących do współpracy z Bower-em. Jeśli ten ostatni nie jest jeszcze zainstalowany na naszym komputerze, musimy najpierw wykonać polecenie
+
+- `sudo npm install -g bower`
+
+Następnie, instalujemy moduł [`grunt-bower-task`](https://github.com/yatskevich/grunt-bower-task) dla Grunt-a:
+
+- `npm install --save-dev grunt-bower-task`
+
+Korzystając z Bower-a instalujemy potrzebne biblioteki – w naszym przypadku będą to
+[Twitter Bootstrap](http://getbootstrap.com/) i [Underscore.js](http://underscorejs.org/):
+
+- `bower install bootstrap`
+- `bower install underscore`
+
+Po zakończeniu instalacji potrzebnych narzędzi (zwróćmy uwagę, że Bower sam instaluje zależności wybranych przez nas narzędzi –
+np. bibliotekę jQuery wymaganą przez Bootstrap-a) wydajemy polecenie:
+
+- `bower init`
+
+Odpowiadamy na krótką serię pytań, wyrażając w szczególności zgodę na umieszczenie w spisie zależności naszego projektu bibliotek,
+które uprzednio zainstalowaliśmy.
+
+Do powstałego pliku `bower.json` musimy jeszcze dopisać sekcję konfiguracyjną, opisującą jakie pliki z zainstalowanych pakietów będziemy chcieli wykorzystać
+i gdzie powinny się one znaleźć.
+
+	"exportsOverride": {
+		"jquery": {
+			"js": "dist/jquery.min.js"
+		},
+		"bootstrap": {
+			"js": "dist/js/bootstrap.min.js",
+			"css": [
+				"dist/css/bootstrap.min.css",
+				"dist/css/bootstrap-theme.min.css"
+			]
+		},
+		"underscore": {
+			"js": "underscore.js"
+		}
+	}
+
+Zanim będziemy mogli skorzystać z zainstalowanego rozszerzenia musimy je jeszcze skonfigurować, dodając
+stosowne wpisy do pliku `Gruntfile.js`.
+
+    module.exports = function(grunt) {
+	    "use strict";
+	    grunt.loadNpmTasks("grunt-bower-task");
+
+	    grunt.initConfig({
+	        bower: {
+	            install: {
+	                options: {
+	                    targetDir: "app/lib",
+	                    layout: "byType",
+	                    install: true,
+	                    verbose: true,
+	                    cleanTargetDir: false,
+	                    cleanBowerDir: true
+	                }
+	            }
+	        }
+	    });
+	}
+
+
+Następnie wystarczy wydać polecenie:
+
+- `grunt bower:install`
+
+W jego następstwie w katalogu `app` znajdzie się następujące drzewo podkatalogów (z odpowiednią zawartością):
+
+	├──css
+	├──less
+	└──lib
+	   ├──css
+	   │  └──bootstrap
+	   └──js
+	      ├──bootstrap
+	      ├──jquery
+	      └──underscore
+
+## Współpraca z [LESS](http://lesscss.org/)
+
+Standardowym rozszerzeniem pozwalającym połączyć Grunt-a z LESS-em jest moduł
+[`grunt-contrib-less`](https://www.npmjs.org/package/grunt-contrib-less). Instalujemy go
+pisząc:
+
+- `npm install --save-dev grunt-contrib-less`
+
+### Konfiguracja
+
+W pliku `Gruntfile.js` umieszczamy linijkę ładującą moduł `grunt-contrib-less`:
+
+	module.exports = function(grunt) {
+	    "use strict";
+	    grunt.loadNpmTasks("grunt-bower-task");
+	    grunt.loadNpmTasks("grunt-contrib-less");
+
+Następnie, do obiektu konfiguracyjnego będącego argumentem `initConfig` dodajemy:
+
+    less: {
+		devel: {
+			files: {
+			  "app/css/style.css": "app/less/style.less"
+			}
+		}
+	}
+
+Teraz, zakładając, że w katalogu `less` znajduje się już plik `style.less` możemy wydać polecenie
+
+- `grunt less`
+
+i w docelowym katalogu `css` znajdzie się plik `style.css`.
+
+Oczywiście każdorazowe, ręczne uruchamianie kompilacji z LESS na CSS byłoby denerwujące. Grunt oczywiście pozwala ten proces
+zautomatyzować.
+
+## Śledzenie zmian w plikach
+
+Do zautomatyzownej kompilacji plików LESS-owych wykorzystamy ogólnego przeznaczenia rozszerzenie „śledzące zmiany w plikach”.
+Nazyw się ono [`grunt-contrib-watch`](https://www.npmjs.org/package/grunt-contrib-watch). Instalujemy je poleceniem:
+
+- `npm install --save-dev grunt-contrib-wtach`
+
+Następnie, w pliku `Gruntfile.js` musimy dodać linijkę ładującą moduł:
+
+    module.exports = function(grunt) {
+	    "use strict";
+	    grunt.loadNpmTasks("grunt-bower-task");
+	    grunt.loadNpmTasks("grunt-contrib-less");
+	    grunt.loadNpmTasks("grunt-contrib-watch");
+
+i ostatecznie – do `initConfig` dodać sekcję:
+
+	watch: {
+		less: {
+			files: ["app/less/*.less"],
+			tasks: ["less"],
+			options: {
+				spawn: false,
+			},
+		},
+	}
+
+Jak widać, odwołuje się ona do wcześniej zdefiniowanego zadania o nazwie `less`, którego uprzednio uzywaliśmy „ręcznie”
+wydając polecenie `grunt less`. Teraz, aby automatycznie kompilować wszystkiem pliki z rozszerzeniem `.less`, znajdujące się 
+w podkatalogu `less`, wystarczy wydac polecenie:
+
+- `grunt watch:less`
+
+Na ekranie pojawi się komunikat podobny do:
+
+	Running "watch:less" (watch) task
+	Waiting...
+
+oznaczający, że Grunt obserwuje zmiany w plikach LESS. Jeśli zmienimy np. plik `style.less`, to pojawi się
+seria komunikatów postaci:
+
+    >> File "app/less/style.less" changed.
+
+	Running "less:devel" (less) task
+	File app/css/style.css created.
+
+	Running "watch:less" (watch) task
+
+Jak widać Grunt wykrył zmianę, wykonał zadanie `less` i powrócił do trybu obserwowania zmian.
